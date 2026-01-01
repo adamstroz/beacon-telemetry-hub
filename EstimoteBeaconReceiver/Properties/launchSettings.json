@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "EstimoteBeaconReceiver": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
