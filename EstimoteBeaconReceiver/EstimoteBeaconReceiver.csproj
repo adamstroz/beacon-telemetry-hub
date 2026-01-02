@@ -19,7 +19,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Bluetooth\Windows\" />
     <Folder Include="Properties\PublishProfiles\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\adams\source\repos\EstimoteBeacon\EstimoteBeaconReceiver\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\adams\source\repos\EstimoteBeacon\EstimoteBeaconReceiver\.editorconfig" />
   </ItemGroup>
 
 </Project>
