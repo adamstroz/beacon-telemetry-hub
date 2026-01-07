@@ -1,9 +1,13 @@
 ﻿namespace EstimoteBeaconReceiver.EstimoteBeacon.Models
 {
-    internal abstract class EstimoteBeaconTelemetryBase(string beaconIdentifier)
+    internal readonly record struct EstimoteErrorCodes(bool HasFirmwareError,
+                                                       bool HasClockError)
     {
-        private readonly string _beaconIdentifier = beaconIdentifier;
+    }
+    internal abstract record EstimoteBeaconTelemetryBase(string BeaconIdentifier,
+                                                         short ProtocolVersion,
+                                                         EstimoteErrorCodes? Errors = null)
+    {
 
- 
     }
 }

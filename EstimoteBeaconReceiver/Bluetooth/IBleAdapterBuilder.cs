@@ -20,7 +20,7 @@ namespace EstimoteBeaconReceiver.Bluetooth
         {
         }
     }
-    internal interface IBleAdapterFinder
+    internal interface IBleAdapterBuilder
     {
         public Task<IBleAdapter> GetAdapter(string? name = null);
     }

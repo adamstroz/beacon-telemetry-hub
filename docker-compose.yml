@@ -9,6 +9,8 @@ services:
       - /sys:/sys
     environment:
       - BeaconReceiverSettings__AdapterName=/org/bluez/hci0
+      - BeaconReceiverSettings__EstimoteServiceUUID=fe9a
+      - BeaconReceiverSettings__EstimoteTelemetryPacketTypeId=0x02
       - 'UDEV=1'
     network_mode: "host"
     build:

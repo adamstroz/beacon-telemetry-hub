@@ -1,10 +1,10 @@
 ﻿using Linux.Bluetooth;
 using Serilog;
 
-namespace EstimoteBeaconReceiver.Bluetooth.Linux
+namespace EstimoteBeaconReceiver.Bluetooth.LinuxBle
 {
-    
-    internal class LinuxAdapterFinder : IBleAdapterFinder
+    internal delegate BleLinuxAdapterWrapper GetBleLinuxAdapterWrapperDelegate();
+    internal class LinuxAdapterBuilder(GetBleLinuxAdapterWrapperDelegate getWrapper) : IBleAdapterBuilder
     {
         public async Task<IBleAdapter> GetAdapter(string? name = null)
         {
@@ -23,11 +23,18 @@ namespace EstimoteBeaconReceiver.Bluetooth.Linux
                 throw new BleAdapterException("No adapters found in system.");
             }
             Log.Debug($"Found {allAdapters.Count} BLE adapter(s) in system, {string.Join(", ",allAdapters.Select(x => x.Name))}");
+            Adapter selectedAdapter;
             if (name != null)
             {
-                return new BleLinuxAdapter(allAdapters.FirstOrDefault(x => x.Name == name) ?? throw new BleAdapterException($"Cannot find adapter with the specified name: '{name}'."));
+                selectedAdapter = allAdapters.FirstOrDefault(x => x.Name == name) ?? throw new BleAdapterException($"Cannot find adapter with the specified name: '{name}'.");
             }
-            return new BleLinuxAdapter(allAdapters[0]);
+            else
+            {
+                selectedAdapter = allAdapters[0];
+            }
+            BleLinuxAdapterWrapper wrapper = getWrapper.Invoke();
+            wrapper.SetupWrapper(selectedAdapter);
+            return wrapper;
         }
     }
 }

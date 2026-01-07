@@ -10,7 +10,8 @@ namespace EstimoteBeaconReceiver.EstimoteBeacon
 {
     internal interface IBeaconFinder
     {
-        public Task StartSearching(IBleAdapter bleAdapter, TimeSpan searchTime, CancellationToken cancellationToken);
-        public event Action<EstimoteBeaconTelemetryBase> BeaconDataRecived;
+        public Task Search(IBleAdapter bleAdapter, CancellationToken cancellationToken);
+        public event Action<EstimoteBeaconTelemetryA> BeaconSubFrameARecived;
+        public event Action<EstimoteBeaconTelemetryB> BeaconSubFrameBRecived;
     }
 }
