@@ -16,7 +16,7 @@ namespace EstimoteBeaconReceiver.Settings
         */
         public string EstimoteServiceUUID { get; set; } = "fe9a";
         public byte EstimoteTelemetryPacketTypeId { get;set; } = 0x02;
-        public TimeSpan ScanDuration { get; set; } = TimeSpan.FromSeconds(30);
-        public TimeSpan ScanInterval { get; set; } = TimeSpan.FromMinutes(1);
+        public TimeSpan ScanDuration { get; set; } = TimeSpan.FromSeconds(5);
+        public TimeSpan ScanInterval { get; set; } = TimeSpan.FromSeconds(1);
     }
 }

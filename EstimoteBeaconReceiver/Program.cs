@@ -1,6 +1,9 @@
 ﻿using EstimoteBeaconReceiver.Bluetooth;
 using EstimoteBeaconReceiver.Bluetooth.LinuxBle;
-using EstimoteBeaconReceiver.EstimoteBeacon;
+using EstimoteBeaconReceiver.EstimoteBeacon.BeaconFinder;
+using EstimoteBeaconReceiver.EstimoteBeacon.DataParser;
+using EstimoteBeaconReceiver.EstimoteBeacon.Models;
+using EstimoteBeaconReceiver.EstimoteBeacon.PacketDataParser;
 using EstimoteBeaconReceiver.Settings;
 using Linux.Bluetooth;
 using Microsoft.Extensions.Configuration;
@@ -42,9 +45,16 @@ namespace EstimoteBeaconReceiver
                 {
                     throw new InvalidOperationException("Invalid OS!)");
                 }
+                services.AddSingleton<TelemetryAParser>();
+                services.AddSingleton<IBeaconTelemeteryGeneralParser>(sp => sp.GetRequiredService<TelemetryAParser>());
+                services.AddSingleton<IBeaconTelemeteryDetailedParser<BeaconTelemetryA>>(sp => sp.GetRequiredService<TelemetryAParser>());
 
+                services.AddSingleton<TelemetryBParser>();
+                services.AddSingleton<IBeaconTelemeteryGeneralParser>(sp => sp.GetRequiredService<TelemetryBParser>());
+                services.AddSingleton<IBeaconTelemeteryDetailedParser<BeaconTelemetryB>>(sp => sp.GetRequiredService<TelemetryBParser>());
 
-                services.AddTransient<IBeaconFinder, BeaconFinder>();
+                services.AddSingleton<IBeaconTelemetryResolver, BeaconTelemetryResolver>();
+                services.AddSingleton<IBeaconFinder, BeaconFinder>();
                 services.AddHostedService<BeaconBackgroundService>();
                 services.Configure<BeaconReceiverSettings>(
                     context.Configuration.GetSection("BeaconReceiverSettings"));

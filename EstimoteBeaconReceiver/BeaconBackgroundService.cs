@@ -1,8 +1,8 @@
 ﻿using EstimoteBeaconReceiver.Bluetooth;
-using EstimoteBeaconReceiver.EstimoteBeacon;
+using EstimoteBeaconReceiver.EstimoteBeacon.BeaconFinder;
 using EstimoteBeaconReceiver.EstimoteBeacon.Models;
 using EstimoteBeaconReceiver.Settings;
- 
+
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -25,12 +25,12 @@ namespace EstimoteBeaconReceiver
             await beaconFinder.Search(blAdapter, stoppingToken);
         }
 
-        private void BeaconFinder_BeaconSubFrameBRecived(EstimoteBeaconTelemetryB obj)
+        private void BeaconFinder_BeaconSubFrameBRecived(BeaconTelemetryB obj)
         {
            
         }
 
-        private void BeaconFinder_BeaconSubFrameARecived(EstimoteBeaconTelemetryA obj)
+        private void BeaconFinder_BeaconSubFrameARecived(BeaconTelemetryA obj)
         {
            
         }

@@ -14,7 +14,7 @@ namespace EstimoteBeaconReceiver.Bluetooth
         public string Address => _address;
         public BleDeviceAddress(string address)
         {
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(address, nameof(address));
+            ArgumentException.ThrowIfNullOrWhiteSpace(address, nameof(address));
             ThrowIfAddressInvalid(address);
             _address = address;
         }
@@ -66,42 +66,6 @@ namespace EstimoteBeaconReceiver.Bluetooth
             }   
             
             return sb.ToString();
-        }
-        public bool IsEstimoteTelemetryPacket(string estimoteServiceUUID, byte estimoteTelemetryPacketTypeId)
-        {
-            ArgumentException.ThrowIfNullOrWhiteSpace(estimoteServiceUUID, nameof(estimoteServiceUUID));
-            if (ServiceData == null)
-            {
-                return false;
-            }
-            if(ServiceData.Keys.Any(k => k.Contains(estimoteServiceUUID, StringComparison.OrdinalIgnoreCase)) == false)
-            {
-                return false;
-            }
-            // At this point we know that the packet contains Service Data with the Estimote UUID (packet is from an Estimote device)
-            // Check for the telemetry packet type identifier
-            if (ServiceData.Values.Any(s => {
-                if (s is byte[] data)
-                {
-                    if (data.Length < 1)
-                    {
-                        return false;
-                    }
-                    if ((data[0] & 0b0000_1111) == estimoteTelemetryPacketTypeId)
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-                return false;
-            }))
-            {
-                return true;
-            }
-            return false;
         }
     }
 }

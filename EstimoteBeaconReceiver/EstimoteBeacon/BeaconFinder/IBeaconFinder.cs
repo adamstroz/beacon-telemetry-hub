@@ -6,12 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EstimoteBeaconReceiver.EstimoteBeacon
+namespace EstimoteBeaconReceiver.EstimoteBeacon.BeaconFinder
 {
     internal interface IBeaconFinder
     {
         public Task Search(IBleAdapter bleAdapter, CancellationToken cancellationToken);
-        public event Action<EstimoteBeaconTelemetryA> BeaconSubFrameARecived;
-        public event Action<EstimoteBeaconTelemetryB> BeaconSubFrameBRecived;
+        public event Action<BeaconTelemetryA> BeaconSubFrameARecived;
+        public event Action<BeaconTelemetryB> BeaconSubFrameBRecived;
     }
 }
