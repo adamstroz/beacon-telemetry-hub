@@ -9,57 +9,47 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using UnitsNet;
 using Serilog;
 
-namespace EstimoteBeaconReceiver.EstimoteBeacon.DataParser
+namespace EstimoteBeaconReceiver.EstimoteBeacon.DataParser.Parsers
 {
     internal class TelemetryBParser : TelemetryParserBase, IBeaconTelemeteryDetailedParser<BeaconTelemetryB>
     {
-        public Type SupportedType => typeof(BeaconTelemetryB);
+        public virtual Type SupportedType => typeof(BeaconTelemetryB);
 
         public BeaconTelemetryB Parse(BeaconRawData rawData)
         {
             ReadOnlySpan<byte> data = rawData.ServiceData;
+
+            // Protocol version
             var protocolVersion = GetProtocolVersion(data);
-            ThrowIfProtocolVersionInvalid(protocolVersion);
 
-            var magneticField = new MagneticFieldStrength(
-                X_axis: (sbyte)data[10] / 128.0,
-                Y_axis: (sbyte)data[11] / 128.0,
-                Z_axis: (sbyte)data[12] / 128.0
-            );
-
-            Illuminance? ambientIlluminance = null;
-            if (data[13] != 0xFF)
-            {
-
-                var ambientLightUpper = (data[13] & 0b1111_0000) >> 4;
-                var ambientLightLower = data[13] & 0b0000_1111;
-                ambientIlluminance = Illuminance.FromLux(Math.Pow(2, ambientLightUpper) * ambientLightLower * 0.72);
-            }
-
+            // Uptime
             var uptimeUnitCode = (data[15] & 0b0011_0000) >> 4;
             TimeSpan uptime = uptimeUnitCode switch
             {
-                0 => TimeSpan.FromSeconds(((data[15] & 0b0000_1111) << 8) | data[14]),
-                1 => TimeSpan.FromMinutes(((data[15] & 0b0000_1111) << 8) | data[14]),
-                2 => TimeSpan.FromHours(((data[15] & 0b0000_1111) << 8) | data[14]),
-                3 => TimeSpan.FromDays(((data[15] & 0b0000_1111) << 8) | data[14]),
+                0 => TimeSpan.FromSeconds((data[15] & 0b0000_1111) << 8 | data[14]),
+                1 => TimeSpan.FromMinutes((data[15] & 0b0000_1111) << 8 | data[14]),
+                2 => TimeSpan.FromHours((data[15] & 0b0000_1111) << 8 | data[14]),
+                3 => TimeSpan.FromDays((data[15] & 0b0000_1111) << 8 | data[14]),
                 _ => throw new InvalidOperationException("Invalid uptime unit code")
             };
 
+            // Temperature
             int temperatureRawValue =
-                ((data[17] & 0b0000_0011) << 10) |
-                (data[16] << 2) |
-                ((data[15] & 0b1100_0000) >> 6);
+                (data[17] & 0b0000_0011) << 10 |
+                data[16] << 2 |
+                (data[15] & 0b1100_0000) >> 6;
 
             if (temperatureRawValue > 2047)
                 temperatureRawValue -= 4096;
 
             var temperature = Temperature.FromDegreesCelsius(temperatureRawValue / 16.0);
 
-            int batteryVoltageRaw = (data[18] << 6) | ((data[17] & 0b1111_1100) >> 2);
+            // Battery voltage
+            int batteryVoltageRaw = data[18] << 6 | (data[17] & 0b1111_1100) >> 2;
             int? batteryVoltageIn_mV = batteryVoltageRaw == 0b11_1111_1111_1111 ? null : batteryVoltageRaw;
             ElectricPotential? batteryVoltage = batteryVoltageIn_mV == null ? null: ElectricPotential.FromMillivolts(batteryVoltageIn_mV.Value);
 
+            // Errors
             EstimoteErrorCodes? errors = null;
             if (protocolVersion == 0)
             {
@@ -70,6 +60,7 @@ namespace EstimoteBeaconReceiver.EstimoteBeacon.DataParser
                 };
             }
 
+            // Battery level
             Ratio? batteryLevel = null;
             var rawBatteryLevel = data[19];
             if (rawBatteryLevel != 0xFF)
@@ -77,19 +68,16 @@ namespace EstimoteBeaconReceiver.EstimoteBeacon.DataParser
                 batteryLevel = Ratio.FromPercent(rawBatteryLevel);
             }
                
-
             return new BeaconTelemetryB(
-                MagneticFieldStrength: magneticField,
-                AmbientLightLevel: ambientIlluminance,
-                UpTime: uptime,
-                Temperature: temperature,
-                BatteryLevel: batteryLevel,
-                BatteryVoltage: batteryVoltage,
-                BeaconIdentifier: GetBeaconIdentifier(data),
-                ProtocolVersion: protocolVersion,
-                FoundTimestamp: rawData.FoundTimeStamp,
-                BleDeviceAddress: rawData.BleDeviceAddress,
-                ErrorCodes: errors
+                        UpTime: uptime,
+                        Temperature: temperature,
+                        BatteryLevel: batteryLevel,
+                        BatteryVoltage: batteryVoltage,
+                        BeaconIdentifier: GetBeaconIdentifier(data),
+                        ProtocolVersion: protocolVersion,
+                        FoundTimestamp: rawData.FoundTimeStamp,
+                        BleDeviceAddress: rawData.BleDeviceAddress,
+                        ErrorCodes: errors
             );
         }
 

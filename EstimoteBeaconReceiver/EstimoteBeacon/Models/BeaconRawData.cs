@@ -6,8 +6,7 @@ namespace EstimoteBeaconReceiver.EstimoteBeacon.Models
     {
         public override string ToString()
         {
-            var serviceDataHex = ServiceData != null ? Convert.ToHexString(ServiceData) : "null";
-            return $"ServiceUUID: {ServiceUUID}, ServiceData: {serviceDataHex}, FoundTimeStamp: {FoundTimeStamp:O}, BleDeviceAddress: {BleDeviceAddress}";
+            return $"ServiceUUID: {ServiceUUID}, ServiceData: {BitConverter.ToString(ServiceData)}, FoundTimeStamp: {FoundTimeStamp}, BleDeviceAddress: {BleDeviceAddress}";
         }
     }
 }

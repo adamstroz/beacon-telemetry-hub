@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EstimoteBeaconReceiver.EstimoteBeacon.DataParser
+namespace EstimoteBeaconReceiver.EstimoteBeacon.DataParser.Parsers
 {
     internal abstract class TelemetryParserBase
     {
@@ -30,10 +30,10 @@ namespace EstimoteBeaconReceiver.EstimoteBeacon.DataParser
         }
         protected static void ThrowIfProtocolVersionInvalid(byte protocolVersion)
         {
-            if (protocolVersion > BeaconTelemetryBase.SupportedProtocolMinimumVersion)
+            if (protocolVersion > BeaconTelemetryBase.SupportedProtocolMaximumVersion)
             {
                 throw new NotSupportedException($"Protocol version '{protocolVersion}' is not supported." +
-                                                $" Maximum supported protocol version is '{BeaconTelemetryBase.SupportedProtocolMinimumVersion}'");
+                                                $" Maximum supported protocol version is '{BeaconTelemetryBase.SupportedProtocolMaximumVersion}'");
             }
         }
 

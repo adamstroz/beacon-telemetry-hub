@@ -2,6 +2,7 @@
 using EstimoteBeaconReceiver.Bluetooth.LinuxBle;
 using EstimoteBeaconReceiver.EstimoteBeacon.BeaconFinder;
 using EstimoteBeaconReceiver.EstimoteBeacon.DataParser;
+using EstimoteBeaconReceiver.EstimoteBeacon.DataParser.Parsers;
 using EstimoteBeaconReceiver.EstimoteBeacon.Models;
 using EstimoteBeaconReceiver.EstimoteBeacon.PacketDataParser;
 using EstimoteBeaconReceiver.Settings;
@@ -49,9 +50,17 @@ namespace EstimoteBeaconReceiver
                 services.AddSingleton<IBeaconTelemeteryGeneralParser>(sp => sp.GetRequiredService<TelemetryAParser>());
                 services.AddSingleton<IBeaconTelemeteryDetailedParser<BeaconTelemetryA>>(sp => sp.GetRequiredService<TelemetryAParser>());
 
+                services.AddSingleton<TelemetryAExtendedParser>();
+                services.AddSingleton<IBeaconTelemeteryGeneralParser>(sp => sp.GetRequiredService<TelemetryAExtendedParser>());
+                services.AddSingleton<IBeaconTelemeteryDetailedParser<BeaconTelemetryAExtended>>(sp => sp.GetRequiredService<TelemetryAExtendedParser>());
+
                 services.AddSingleton<TelemetryBParser>();
                 services.AddSingleton<IBeaconTelemeteryGeneralParser>(sp => sp.GetRequiredService<TelemetryBParser>());
                 services.AddSingleton<IBeaconTelemeteryDetailedParser<BeaconTelemetryB>>(sp => sp.GetRequiredService<TelemetryBParser>());
+
+                services.AddSingleton<TelemetryBExtendedParser>();
+                services.AddSingleton<IBeaconTelemeteryGeneralParser>(sp => sp.GetRequiredService<TelemetryBExtendedParser>());
+                services.AddSingleton<IBeaconTelemeteryDetailedParser<BeaconTelemetryBExtended>>(sp => sp.GetRequiredService<TelemetryBExtendedParser>());
 
                 services.AddSingleton<IBeaconTelemetryResolver, BeaconTelemetryResolver>();
                 services.AddSingleton<IBeaconFinder, BeaconFinder>();
@@ -59,7 +68,7 @@ namespace EstimoteBeaconReceiver
                 services.Configure<BeaconReceiverSettings>(
                     context.Configuration.GetSection("BeaconReceiverSettings"));
             });
-            
+  
 
             using IHost host = hostBuilder.Build();
 

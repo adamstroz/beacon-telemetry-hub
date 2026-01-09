@@ -7,11 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 using UnitsNet;
 
-namespace EstimoteBeaconReceiver.EstimoteBeacon.DataParser
+namespace EstimoteBeaconReceiver.EstimoteBeacon.DataParser.Parsers
 {
     internal class TelemetryAParser : TelemetryParserBase, IBeaconTelemeteryDetailedParser<BeaconTelemetryA>
     {
-        public Type SupportedType => typeof(BeaconTelemetryA);
+        public virtual Type SupportedType => typeof(BeaconTelemetryA);
 
         public BeaconTelemetryA Parse(BeaconRawData rawData)
         {
@@ -50,39 +50,19 @@ namespace EstimoteBeaconReceiver.EstimoteBeacon.DataParser
                 };
             }
            
-
-            // GPIO pins
-            GpioPins gpioPins = new(
-                Pin0: (rawServiceData[15] & 0b00010000) != 0,
-                Pin1: (rawServiceData[15] & 0b00100000) != 0,
-                Pin2: (rawServiceData[15] & 0b01000000) != 0,
-                Pin3: (rawServiceData[15] & 0b10000000) != 0
-            );
-
             // Errors
             EstimoteErrorCodes? errors = null;
             if (protocolVersion == 2)
             {
-                bool hasFirmwareError = ((rawServiceData[15] & 0b00000100) >> 2) == 1;
-                bool hasClockError = ((rawServiceData[15] & 0b00001000) >> 3) == 1;
+                bool hasFirmwareError = (rawServiceData[15] & 0b00000100) >> 2 == 1;
+                bool hasClockError = (rawServiceData[15] & 0b00001000) >> 3 == 1;
                 errors = new EstimoteErrorCodes(hasFirmwareError, hasClockError);
             }
             else if (protocolVersion == 1)
             {
                 bool hasFirmwareError = (rawServiceData[16] & 0b00000001) == 1;
-                bool hasClockError = ((rawServiceData[16] & 0b00000010) >> 1) == 1;
+                bool hasClockError = (rawServiceData[16] & 0b00000010) >> 1 == 1;
                 errors = new EstimoteErrorCodes(hasFirmwareError, hasClockError);
-            }
-
-            // Atmospheric pressure
-            Pressure? pressure = null;
-            if (protocolVersion == 2)
-            {
-                uint pressureRaw = BinaryPrimitives.ReadUInt32LittleEndian(rawServiceData.Slice(16, 4));
-                if(pressureRaw != 0xFFFFFFFF)
-                {
-                    pressure = Pressure.FromPascals(pressureRaw / 256.0);
-                }
             }
 
             return new BeaconTelemetryA(
@@ -94,9 +74,7 @@ namespace EstimoteBeaconReceiver.EstimoteBeacon.DataParser
                 Acceleration: acceleration,
                 IsMoving: isMoving,
                 PreviousMotionStateDuration: ParseMotionStateDuration(rawServiceData[13]),
-                CurrentMotionStateDuration: ParseMotionStateDuration(rawServiceData[14]),
-                Pressure: pressure,
-                GpioState: gpioPins
+                CurrentMotionStateDuration: ParseMotionStateDuration(rawServiceData[14])
             );
         }
         

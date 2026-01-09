@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EstimoteBeaconReceiver.EstimoteBeacon.DataParser
+namespace EstimoteBeaconReceiver.EstimoteBeacon.DataParser.Parsers
 {
     internal interface IBeaconTelemeteryGeneralParser
     {

@@ -1,6 +1,8 @@
-﻿using EstimoteBeaconReceiver.EstimoteBeacon.Models;
+﻿using EstimoteBeaconReceiver.EstimoteBeacon.DataParser.Parsers;
+using EstimoteBeaconReceiver.EstimoteBeacon.Models;
 using EstimoteBeaconReceiver.EstimoteBeacon.PacketDataParser;
 using Serilog;
+using System.Buffers.Binary;
 using UnitsNet;
 
 namespace EstimoteBeaconReceiver.EstimoteBeacon.DataParser
@@ -11,7 +13,7 @@ namespace EstimoteBeaconReceiver.EstimoteBeacon.DataParser
         public const byte TelemetryTypeA = 0x00;
         public const byte TelemetryTypeB = 0x01;
         private const int ExpectedServiceDataLengthForTelemetryType = 10;
-        IEnumerable<IBeaconTelemeteryGeneralParser> _parsers;
+        private readonly IEnumerable<IBeaconTelemeteryGeneralParser> _parsers;
         public BeaconTelemetryResolver(IEnumerable<IBeaconTelemeteryGeneralParser> parsers)
         {
             _parsers = parsers;
@@ -19,19 +21,41 @@ namespace EstimoteBeaconReceiver.EstimoteBeacon.DataParser
         }
         public Type DetermineTelemeteryTypeFromRawData(BeaconRawData rawData)  
         {
-            ArgumentNullException.ThrowIfNull(rawData, nameof(rawData)); 
-            if (rawData.ServiceData.Length < ExpectedServiceDataLengthForTelemetryType)
+            ArgumentNullException.ThrowIfNull(rawData, nameof(rawData));
+            ReadOnlySpan<byte> data = rawData.ServiceData;
+            if (data.Length < ExpectedServiceDataLengthForTelemetryType)
             {
                 throw new InvalidOperationException($"Invalid service length, the Estimote service data is too short (length '{rawData.ServiceData.Length}') " +
                                                     $"to determine telemetry type. Expected length: {ExpectedServiceDataLengthForTelemetryType}");
             }
-            byte type = (byte)(rawData.ServiceData[9] & TelemetryTypeMask);
-            return type switch
+            try
             {
-                TelemetryTypeA => typeof(BeaconTelemetryA),
-                TelemetryTypeB => typeof(BeaconTelemetryB),
-                _ => throw new NotSupportedException($"Telemetry type '{type}' is not supported."),
-            };
+                byte type = (byte)(data[9] & TelemetryTypeMask);
+                switch (type)
+                {
+                    case TelemetryTypeA:
+                        //Check if telemetry contains valid extended data (GPIO state at byte 15 and athmospheric pressure at bytes 16,17,18,19)
+                        if (BinaryPrimitives.ReadUInt32LittleEndian(data.Slice(16, 4)) != 0xFFFFFFFF &&
+                            data[15] != 0xF8)
+                        {
+                            return typeof(BeaconTelemetryAExtended);
+                        }
+                        return typeof(BeaconTelemetryA);
+                    case TelemetryTypeB:
+                        //Check if telemetry contains valid extended data (Ambient light level at byte 13, magnetometer readings at bytes 10,11,12 can be any 8-bit numbers)
+                        if (data[13] != 0xFF)
+                        {
+                            return typeof(BeaconTelemetryBExtended);
+                        }
+                        return typeof(BeaconTelemetryB);
+                    default:
+                        throw new NotSupportedException($"Telemetry type '{type}' is not supported.");
+                }
+            }
+            catch(Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to determine telemetry type from raw data. Data: {Convert.ToHexString(data)}", ex);
+            }
         }
         public T CreateTelemetry<T>(BeaconRawData rawData) where T : BeaconTelemetryBase
         {
