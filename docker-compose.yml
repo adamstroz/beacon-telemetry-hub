@@ -1,6 +1,6 @@
 services:
-  estimotebeaconreceiver:
-    image: ${DOCKER_REGISTRY-}estimotebeaconreceiver
+  beacontelemetryhub:
+    image: ${DOCKER_REGISTRY-}beacontelemetryhub
     privileged: true
     user: root
     volumes:
@@ -14,5 +14,17 @@ services:
       - 'UDEV=1'
     network_mode: "host"
     build:
-      context: EstimoteBeaconReceiver
+      context: BeaconTelemetryHub.Receiver
       dockerfile: Dockerfile
+  nocodb:
+    image: nocodb/nocodb:latest
+    container_name: nocodb-csv
+    ports:
+      - "8080:8080"
+    volumes:
+      - noco_data:/usr/app/data
+    restart: always
+volumes:
+    noco_data:
+
+     
