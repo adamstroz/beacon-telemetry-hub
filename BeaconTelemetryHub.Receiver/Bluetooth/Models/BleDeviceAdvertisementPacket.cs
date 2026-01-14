@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BeaconTelemetryHub.Receiver.Bluetooth.Models
 {
-    internal readonly struct BleDeviceAddress : IEquatable<BleDeviceAddress>
+    public readonly struct BleDeviceAddress : IEquatable<BleDeviceAddress>
     {
         private readonly string _address;
         public string Address => _address;
@@ -24,21 +24,25 @@ namespace BeaconTelemetryHub.Receiver.Bluetooth.Models
         }
         private static void ThrowIfAddressInvalid(string address)
         {
-            // BLE address format: "XX:XX:XX:XX:XX:XX" where X is a hex digit
             if (address.Length != 17)
+            {
                 throw new ArgumentException($"Invalid BLE address format: {address}", nameof(address));
-
+            }
             for (int i = 0; i < address.Length; i++)
             {
                 if ((i + 1) % 3 == 0)
                 {
                     if (address[i] != ':')
+                    {
                         throw new ArgumentException($"Invalid BLE address format: {address}", nameof(address));
+                    }
                 }
                 else
                 {
                     if (!Uri.IsHexDigit(address[i]))
+                    {
                         throw new ArgumentException($"Invalid BLE address format: {address}", nameof(address));
+                    }
                 }
             }
         }
@@ -50,7 +54,7 @@ namespace BeaconTelemetryHub.Receiver.Bluetooth.Models
         public static bool operator !=(BleDeviceAddress left, BleDeviceAddress right) => !left.Equals(right);
     }
 
-    internal record BleDeviceAdvertisementPacket(BleDeviceAddress Address, short Rssi, FrozenDictionary<string, object>? ServiceData)
+    public record BleDeviceAdvertisementPacket(BleDeviceAddress Address, short Rssi, FrozenDictionary<string, object>? ServiceData)
     {
         public DateTimeOffset FoundTimestamp { get; } = DateTimeOffset.UtcNow;
         public override string ToString()

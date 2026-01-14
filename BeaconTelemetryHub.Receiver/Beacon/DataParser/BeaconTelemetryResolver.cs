@@ -2,11 +2,10 @@
 using BeaconTelemetryHub.Receiver.Beacon.Models;
 using Serilog;
 using System.Buffers.Binary;
-using UnitsNet;
 
 namespace BeaconTelemetryHub.Receiver.Beacon.DataParser
 {
-    internal class BeaconTelemetryResolver : IBeaconTelemetryResolver
+    public class BeaconTelemetryResolver : IBeaconTelemetryResolver
     {
         public const byte TelemetryTypeMask = 0b0000_0011;
         public const byte TelemetryTypeA = 0x00;
@@ -16,7 +15,7 @@ namespace BeaconTelemetryHub.Receiver.Beacon.DataParser
         public BeaconTelemetryResolver(IEnumerable<IBeaconTelemeteryGeneralParser> parsers)
         {
             _parsers = parsers;
-            Log.Debug("Registered parsers: {Type}", string.Join(";", _parsers.Select(x => x.SupportedType)));
+            Log.Verbose("Registered parsers: {Type}", string.Join(";", _parsers.Select(x => x.SupportedType)));
         }
         public Type DetermineTelemeteryTypeFromRawData(BeaconRawData rawData)  
         {

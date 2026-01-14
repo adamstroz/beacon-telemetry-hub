@@ -1,35 +1,20 @@
 ﻿using BeaconTelemetryHub.Receiver.Beacon.BeaconFinder;
-using BeaconTelemetryHub.Receiver.Beacon.DataParser;
 using BeaconTelemetryHub.Receiver.Beacon.DataParser.Parsers;
+using BeaconTelemetryHub.Receiver.Beacon.DataParser;
 using BeaconTelemetryHub.Receiver.Beacon.Models;
-using BeaconTelemetryHub.Receiver.Bluetooth;
-using BeaconTelemetryHub.Receiver.Bluetooth.LinuxBle;
 using BeaconTelemetryHub.Receiver.Settings;
-using Linux.Bluetooth;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Serilog;
-
+using BeaconTelemetryHub.Receiver.Bluetooth.LinuxBle;
+using BeaconTelemetryHub.Receiver.Bluetooth;
 
 namespace BeaconTelemetryHub.Receiver
 {
-    class Program
+    public static class ReceiverServiceCollectionExtensions
     {
-        static async Task Main(string[] args)
+        public static void RegisterBeaconTelemetryReceiverServices(this IServiceCollection services)
         {
-            Log.Logger = new LoggerConfiguration()
-                    .MinimumLevel.Verbose()
-                        .WriteTo.Console()
-                        
-                        .CreateLogger();
-            
-
-            IHostBuilder hostBuilder = Host.CreateDefaultBuilder(args);
-
-            hostBuilder.ConfigureServices((context, services) =>
+            try
             {
-
                 if (OperatingSystem.IsLinux())
                 {
                     services.AddSingleton<IBleAdapterBuilder, LinuxAdapterBuilder>();
@@ -39,11 +24,11 @@ namespace BeaconTelemetryHub.Receiver
                 }
                 else if (OperatingSystem.IsWindows())
                 {
-                    //services.AddTransient<IBluetoothAdapterFinder, WindowsAdapterFinder>();
+                    throw new NotImplementedException("Windows BLE adapter is not supported");
                 }
-                else
+                else 
                 {
-                    throw new InvalidOperationException("Invalid OS!)");
+                    throw new NotSupportedException($"Not supported Operating system: {Environment.OSVersion}");
                 }
                 services.AddSingleton<TelemetryAParser>();
                 services.AddSingleton<IBeaconTelemeteryGeneralParser>(sp => sp.GetRequiredService<TelemetryAParser>());
@@ -63,20 +48,19 @@ namespace BeaconTelemetryHub.Receiver
 
                 services.AddSingleton<IBeaconTelemetryResolver, BeaconTelemetryResolver>();
                 services.AddSingleton<IBeaconFinder, BeaconFinder>();
-                services.AddHostedService<BeaconBackgroundService>();
-                services.Configure<BeaconReceiverSettings>(
-                    context.Configuration.GetSection("BeaconReceiverSettings"));
-            });
-  
-
-            using IHost host = hostBuilder.Build();
-
-            await host.StartAsync();
-
-            await host.WaitForShutdownAsync();
-
+            }
+            catch (NotImplementedException)
+            {
+                throw;
+            }
+            catch (NotSupportedException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Cannot register telemetry receiver services to the host builder", ex);
+            }
         }
-    
-         
     }
 }

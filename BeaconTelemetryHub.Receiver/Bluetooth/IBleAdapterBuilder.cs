@@ -1,29 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BeaconTelemetryHub.Receiver.Bluetooth
+﻿namespace BeaconTelemetryHub.Receiver.Bluetooth
 {
-    public class BleAdapterException : Exception
-    {
-        public BleAdapterException()
-        {
-        }
-
-        public BleAdapterException(string? message) : base(message)
-        {
-        }
-
-        public BleAdapterException(string? message, Exception? innerException) : base(message, innerException)
-        {
-        }
-    }
     /// <summary>
     /// Builds and provides Bluetooth Low Energy (BLE) adapter instances.
     /// </summary>
-    internal interface IBleAdapterBuilder
+    public interface IBleAdapterBuilder
     {
         /// <summary>
         /// Gets a BLE adapter instance by name or first available in system.

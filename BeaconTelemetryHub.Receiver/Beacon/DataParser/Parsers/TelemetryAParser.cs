@@ -1,15 +1,9 @@
 ﻿using BeaconTelemetryHub.Receiver.Beacon.Models;
-using System;
-using System.Buffers.Binary;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnitsNet;
 
 namespace BeaconTelemetryHub.Receiver.Beacon.DataParser.Parsers
 {
-    internal class TelemetryAParser : TelemetryParserBase, IBeaconTelemeteryDetailedParser<BeaconTelemetryA>
+    public class TelemetryAParser : TelemetryParserBase, IBeaconTelemeteryDetailedParser<BeaconTelemetryA>
     {
         public virtual Type SupportedType => typeof(BeaconTelemetryA);
 

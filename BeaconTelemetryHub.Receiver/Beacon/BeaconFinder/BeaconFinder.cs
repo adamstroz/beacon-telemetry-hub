@@ -1,17 +1,14 @@
-﻿using BeaconTelemetryHub.Receiver.Beacon;
-using BeaconTelemetryHub.Receiver.Beacon.DataParser;
+﻿using BeaconTelemetryHub.Receiver.Beacon.DataParser;
 using BeaconTelemetryHub.Receiver.Beacon.Models;
 using BeaconTelemetryHub.Receiver.Bluetooth;
 using BeaconTelemetryHub.Receiver.Bluetooth.Models;
 using BeaconTelemetryHub.Receiver.Settings;
 using Microsoft.Extensions.Options;
-using Serilog;
 
 namespace BeaconTelemetryHub.Receiver.Beacon.BeaconFinder
 {
-
-    internal class BeaconFinder(IBeaconTelemetryResolver beaconTelemetryResolver, 
-                                IOptions<BeaconReceiverSettings> settings) : IBeaconFinder
+    public class BeaconFinder(IBeaconTelemetryResolver beaconTelemetryResolver, 
+                              IOptions<BeaconReceiverSettings> settings) : IBeaconFinder
     {
         public event Action<BeaconTelemetryBase>? BeaconFound;
 
@@ -77,6 +74,7 @@ namespace BeaconTelemetryHub.Receiver.Beacon.BeaconFinder
             {
                 return;
             }
+            cancellationToken.ThrowIfCancellationRequested();
             ParseFoundPackets(packets);
         }
         public async Task Search(IBleAdapter bleAdapter, CancellationToken cancellationToken)

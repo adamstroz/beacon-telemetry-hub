@@ -1,14 +1,8 @@
 ﻿using BeaconTelemetryHub.Receiver.Beacon.Models;
-using System;
-using System.Buffers.Binary;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BeaconTelemetryHub.Receiver.Beacon.DataParser.Parsers
 {
-    internal abstract class TelemetryParserBase
+    public abstract class TelemetryParserBase
     {
         private const byte ProtocolVersionMask = 0b1111_0000;
         private const int ExpectedServiceDataLengthForTelemetryType = 10;

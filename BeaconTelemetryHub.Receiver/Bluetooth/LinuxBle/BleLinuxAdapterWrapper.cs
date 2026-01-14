@@ -12,7 +12,6 @@ namespace BeaconTelemetryHub.Receiver.Bluetooth.LinuxBle
     {
         private readonly SemaphoreSlim _controllSemaphore = new(1,1);
         private Adapter? _adapter = null;
-        private readonly List<Device> _discoveredDevices = [];
         private bool _disposed = false;
         private readonly ImmutableDictionary<string, object> _filters = new Dictionary<string, object>
         {
@@ -44,21 +43,16 @@ namespace BeaconTelemetryHub.Receiver.Bluetooth.LinuxBle
                     // TODO: Implement adapter change 
                     throw new InvalidOperationException("Adapter can be set only once.");
                 }
-                _adapter = adapter; 
-                _adapter.PoweredOff += PoweredOff;
+                _adapter = adapter;
             }
-            catch
+            catch (Exception ex) 
             {
-                
+                throw new InvalidOperationException("Ble wrapper setup exception", ex);
             }
             finally
             {
                 _controllSemaphore.Release();
             }
-        }
-        private Task PoweredOff(Adapter sender, BlueZEventArgs eventArgs)
-        {
-            throw new NotImplementedException();
         }
         public void Dispose()
         {
@@ -77,7 +71,6 @@ namespace BeaconTelemetryHub.Receiver.Bluetooth.LinuxBle
                 {
                     if (_adapter != null)
                     { 
-                        _adapter.PoweredOff -= PoweredOff;
                         _adapter.Dispose();
                         _adapter = null;
                     }
@@ -96,22 +89,36 @@ namespace BeaconTelemetryHub.Receiver.Bluetooth.LinuxBle
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(scanDuration, TimeSpan.Zero, nameof(scanDuration));
-            await _controllSemaphore.WaitAsync(cancellationToken);
             Dictionary<BleDeviceAddress, BleDeviceAdvertisementPacket> packets = [];
+            await _controllSemaphore.WaitAsync(cancellationToken);
             try
             {
-              
                 if (_adapter == null)
                 {
-                    throw new NullReferenceException("Adapter is null!");
+                    throw new NullReferenceException("Adapter is not set!");
                 }
                 using (await _adapter.WatchDevicesAddedAsync(async device =>
                 {
-                    Device1Properties devProps = await device.GetAllAsync();
-                    BleDeviceAdvertisementPacket packet = new(new(devProps.Address), devProps.RSSI, devProps.ServiceData?.ToFrozenDictionary());
-                    Log.Verbose($"Ble device aedvertising packet detected: {packet}");
-                    packets.Add(new(devProps.Address), packet);
-
+                    Device1Properties devProps;
+                    try
+                    {
+                        devProps = await device.GetAllAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warning($"Cannot get properites from found device: '{device.ObjectPath}'", ex);
+                        return;
+                    }
+         
+                    try
+                    {
+                        BleDeviceAdvertisementPacket packet = new(new(devProps.Address), devProps.RSSI, devProps.ServiceData?.ToFrozenDictionary());
+                        packets.Add(new(devProps.Address), packet);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warning("Cannot add a found Ble packet to results", ex);
+                    }
                 }))
                 {
                     try
@@ -119,12 +126,26 @@ namespace BeaconTelemetryHub.Receiver.Bluetooth.LinuxBle
                         await _adapter.SetDiscoveryFilterAsync(_filters);
                         await _adapter.StartDiscoveryAsync();
                         await Task.Delay(scanDuration, cancellationToken);
-                        await _adapter.StopDiscoveryAsync();
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Task canceled 
                     }
                     catch (Exception ex)
                     {
-                        Log.Error("An exception occurred during BLE advertisement packets discovery.", ex);
+                        throw new InvalidOperationException("Cannot start Ble packet discovering", ex);
                     }
+                    finally
+                    {
+                        try
+                        {
+                            await _adapter.StopDiscoveryAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Warning("Cannot stop Ble packet discovering", ex);
+                        }
+                    } 
                 }
             }
             finally

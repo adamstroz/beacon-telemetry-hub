@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Serilog;
 
-namespace BeaconTelemetryHub.Receiver
+namespace BeaconTelemetryHub.Host
 {
     internal class BeaconBackgroundService(IBeaconFinder beaconFinder, 
                                            IBleAdapterBuilder bleAdapterBuilder,

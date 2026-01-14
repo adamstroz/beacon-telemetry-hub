@@ -1,16 +1,10 @@
 ﻿using BeaconTelemetryHub.Receiver.Beacon.Models;
-using System;
-using System.Buffers.Binary;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnitsNet;
 
 namespace BeaconTelemetryHub.Receiver.Beacon.DataParser.Parsers
 {
     // This parser applies to [Location Beacons] beacon type
-    internal class TelemetryBExtendedParser : TelemetryBParser, IBeaconTelemeteryDetailedParser<BeaconTelemetryBExtended>
+    public class TelemetryBExtendedParser : TelemetryBParser, IBeaconTelemeteryDetailedParser<BeaconTelemetryBExtended>
     {
         public override Type SupportedType => typeof(BeaconTelemetryBExtended);
         public new BeaconTelemetryBExtended Parse(BeaconRawData rawData)

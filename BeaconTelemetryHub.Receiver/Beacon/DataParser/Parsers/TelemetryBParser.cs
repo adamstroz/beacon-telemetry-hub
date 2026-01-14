@@ -3,7 +3,7 @@ using BeaconTelemetryHub.Receiver.Beacon.Models;
 
 namespace BeaconTelemetryHub.Receiver.Beacon.DataParser.Parsers
 {
-    internal class TelemetryBParser : TelemetryParserBase, IBeaconTelemeteryDetailedParser<BeaconTelemetryB>
+    public class TelemetryBParser : TelemetryParserBase, IBeaconTelemeteryDetailedParser<BeaconTelemetryB>
     {
         public virtual Type SupportedType => typeof(BeaconTelemetryB);
 

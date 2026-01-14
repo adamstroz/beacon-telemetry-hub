@@ -11,7 +11,7 @@ namespace BeaconTelemetryHub.Receiver.Bluetooth
     /// <summary>
     /// Represents a Bluetooth Low Energy (BLE) adapter capable of device discovery and advertisement packet retrieval.
     /// </summary>
-    internal interface IBleAdapter : IDisposable
+    public interface IBleAdapter : IDisposable
     {
         /// <summary>
         /// Gets the name of the BLE adapter.

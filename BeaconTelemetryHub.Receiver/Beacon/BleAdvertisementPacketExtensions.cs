@@ -6,7 +6,7 @@ namespace BeaconTelemetryHub.Receiver.Beacon
     internal static class BleAdvertisementPacketExtensions
     {
         public const byte EstimotePacketTypeMask = 0b0000_1111;
-        internal static BeaconRawData GetBeaconRawData(this BleDeviceAdvertisementPacket packet, string estimoteServiceUUID)
+        public static BeaconRawData GetBeaconRawData(this BleDeviceAdvertisementPacket packet, string estimoteServiceUUID)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(estimoteServiceUUID);
             ArgumentNullException.ThrowIfNull(packet, nameof(packet));
@@ -26,7 +26,7 @@ namespace BeaconTelemetryHub.Receiver.Beacon
             }
             return new BeaconRawData(selectedServiceData.Key, (byte[])data.Clone(), packet.FoundTimestamp, packet.Address);
         }
-        internal static bool IsEstimoteTelemetryPacket(this BleDeviceAdvertisementPacket packet, string estimoteServiceUUID, byte estimoteTelemetryPacketTypeId)
+        public static bool IsEstimoteTelemetryPacket(this BleDeviceAdvertisementPacket packet, string estimoteServiceUUID, byte estimoteTelemetryPacketTypeId)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(estimoteServiceUUID, nameof(estimoteServiceUUID));
             if (packet.ServiceData == null)

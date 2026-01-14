@@ -1,6 +1,7 @@
 services:
-  beacontelemetryhub:
-    image: ${DOCKER_REGISTRY-}beacontelemetryhub
+  beacontelemetryhub.host:
+    image: ${DOCKER_REGISTRY-}beacontelemetryhubhost
+    container_name: beacontelemetryhubhost
     privileged: true
     user: root
     volumes:
@@ -9,22 +10,21 @@ services:
       - /sys:/sys
     environment:
       - BeaconReceiverSettings__AdapterName=/org/bluez/hci0
-      - BeaconReceiverSettings__EstimoteServiceUUID=fe9a
-      - BeaconReceiverSettings__EstimoteTelemetryPacketTypeId=0x02
+      - Serilog__MinimumLevel=Debug
       - 'UDEV=1'
     network_mode: "host"
     build:
-      context: BeaconTelemetryHub.Receiver
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: BeaconTelemetryHub.Host/Dockerfile
+      
   nocodb:
-    image: nocodb/nocodb:latest
-    container_name: nocodb-csv
-    ports:
-      - "8080:8080"
-    volumes:
-      - noco_data:/usr/app/data
-    restart: always
-volumes:
-    noco_data:
+        image: nocodb/nocodb:latest
+        container_name: nocodb-csv
+        ports:
+            - "8080:8080"
+        volumes:
+            - noco_data:/usr/app/data
+        restart: always
 
-     
+volumes:
+   noco_data:

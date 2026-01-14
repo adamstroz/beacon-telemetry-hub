@@ -2,7 +2,7 @@
 
 namespace BeaconTelemetryHub.Receiver.Beacon.Models
 {
-    internal record BeaconRawData(string ServiceUUID, byte[] ServiceData, DateTimeOffset FoundTimeStamp, BleDeviceAddress BleDeviceAddress)
+    public record BeaconRawData(string ServiceUUID, byte[] ServiceData, DateTimeOffset FoundTimeStamp, BleDeviceAddress BleDeviceAddress)
     {
         public override string ToString()
         {
