@@ -10,6 +10,7 @@ namespace BeaconTelemetryHub.Receiver.Bluetooth.LinuxBle
 {
     internal class BleLinuxAdapterWrapper : IBleAdapter, IDisposable
     {
+        private readonly TimeSpan _minimalScanDuration = TimeSpan.FromSeconds(1);
         private readonly SemaphoreSlim _controllSemaphore = new(1,1);
         private Adapter? _adapter = null;
         private bool _disposed = false;
@@ -88,7 +89,7 @@ namespace BeaconTelemetryHub.Receiver.Bluetooth.LinuxBle
         public async Task<IReadOnlyDictionary<BleDeviceAddress, BleDeviceAdvertisementPacket>> DiscoveryAdvertisementPackets(TimeSpan scanDuration, CancellationToken cancellationToken)
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
-            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(scanDuration, TimeSpan.Zero, nameof(scanDuration));
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(scanDuration, _minimalScanDuration, nameof(scanDuration));
             Dictionary<BleDeviceAddress, BleDeviceAdvertisementPacket> packets = [];
             await _controllSemaphore.WaitAsync(cancellationToken);
             try
