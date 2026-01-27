@@ -1,0 +1,41 @@
+<svg width="100" height="100" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+
+    <radialGradient id="waveGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+    </radialGradient>
+
+    <style>
+      .bg { fill: url(#bgGradient); }
+      .main { fill: none; stroke: url(#waveGradient); stroke-width: 14; stroke-linecap: round; }
+      .node { fill: #38bdf8; filter: drop-shadow(0 0 6px #38bdf8); }
+      .text { fill: #e5e7eb; font-family: monospace; font-size: 28px; }
+    </style>
+  </defs>
+
+  <!-- background -->
+  <rect width="400" height="400" rx="24" class="bg"/>
+
+  <!-- beacon waves -->
+  <circle cx="200" cy="160" r="40" class="main" opacity="1"/>
+  <circle cx="200" cy="160" r="80" class="main" opacity="0.75"/>
+  <circle cx="200" cy="160" r="120" class="main" opacity="0.5"/>
+
+  <!-- hub node -->
+  <circle cx="200" cy="160" r="14" class="node"/>
+
+  <!-- data nodes -->
+  <circle cx="110" cy="250" r="10" class="node"/>
+  <circle cx="200" cy="260" r="10" class="node"/>
+  <circle cx="290" cy="250" r="10" class="node"/>
+
+  <!-- connections -->
+  <line x1="200" y1="174" x2="110" y2="240" class="main"/>
+  <line x1="200" y1="174" x2="200" y2="250" class="main"/>
+  <line x1="200" y1="174" x2="290" y2="240" class="main"/>
+</svg>

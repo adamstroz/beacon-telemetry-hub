@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "BeaconTelemetryHub.Receiver": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
