@@ -6,6 +6,7 @@ using BeaconTelemetryHub.DataContracts.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using System;
 
 namespace BeaconTelemetryHub.Database.DataSink
 {
@@ -16,6 +17,7 @@ namespace BeaconTelemetryHub.Database.DataSink
         private readonly SemaphoreSlim _beaconSemaphore = new(1, 1);
         public async Task StoreBattery(BatteryDto batteryDto)
         {
+            ArgumentNullException.ThrowIfNull(batteryDto);
             await SaveDataToContext(async (context) =>
             {
                 var beacon = await GetOrCreateBeaconAsync(context, batteryDto);
@@ -28,6 +30,7 @@ namespace BeaconTelemetryHub.Database.DataSink
 
         public async Task StoreTemperature(TemperatureDto temperatureDto)
         {
+            ArgumentNullException.ThrowIfNull(temperatureDto);
             await SaveDataToContext(async (context) =>
             {
                 var beacon = await GetOrCreateBeaconAsync(context, temperatureDto);
@@ -39,6 +42,7 @@ namespace BeaconTelemetryHub.Database.DataSink
         }
         public async Task StoreRssi(RssiDto rssiDto)
         {
+            ArgumentNullException.ThrowIfNull(rssiDto);
             await SaveDataToContext(async (context) =>
             {
                 var beacon = await GetOrCreateBeaconAsync(context, rssiDto);
@@ -51,6 +55,8 @@ namespace BeaconTelemetryHub.Database.DataSink
     
         private async Task<Beacon> GetOrCreateBeaconAsync(BeaconDbContext context, DtoBase dto)
         {
+            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(context);
             var existing = await context.Beacons.FirstOrDefaultAsync(b => b.DeviceIdentifier == dto.DeviceIdentifier);
             if (existing != null)
             {
@@ -77,6 +83,7 @@ namespace BeaconTelemetryHub.Database.DataSink
 
         private async Task SaveDataToContext<T>(Func<BeaconDbContext, Task<T>> action) where T : BaseEntity
         {
+            ArgumentNullException.ThrowIfNull(action);
             try
             {
                 using var context = await dbContextFactory.CreateDbContextAsync();
