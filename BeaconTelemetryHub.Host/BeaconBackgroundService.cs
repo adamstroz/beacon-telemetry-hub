@@ -47,7 +47,7 @@ namespace BeaconTelemetryHub.Host
                 }
                 catch (Exception ex)
                 {
-                    Log.Error("Cannot build ble adapter, see exception from details", ex);
+                    Log.Error(ex, "Cannot build ble adapter, see exception from details");
                     Environment.ExitCode = (int)ExitCode.Error;
                     return;
                 }
@@ -61,14 +61,14 @@ namespace BeaconTelemetryHub.Host
                 }
                 catch (Exception ex)
                 {
-                    Log.Error("Exception in searching beacons", ex);
+                    Log.Error(ex,"Exception in searching beacons");
                     Environment.ExitCode = (int)ExitCode.Error;
                     return;
                 }
             }
             catch (Exception ex)
             {
-                Log.Error("Unexpected error in beacon receiver background service", ex);
+                Log.Error(ex, "Unexpected error in beacon receiver background service");
                 Environment.ExitCode = (int)ExitCode.Error;
             }
             finally
