@@ -70,7 +70,7 @@ namespace BeaconTelemetryHub.Receiver.Bluetooth.LinuxBle
                     }
                     catch (Exception ex)
                     {
-                        Log.Warning($"Cannot get properites from found device: '{device.ObjectPath}'", ex);
+                        Log.Warning(ex, $"Cannot get properites from found device: '{device.ObjectPath}'");
                         return;
                     }
          
@@ -81,7 +81,7 @@ namespace BeaconTelemetryHub.Receiver.Bluetooth.LinuxBle
                     }
                     catch (Exception ex)
                     {
-                        Log.Warning("Cannot add a found Ble packet to results", ex);
+                        Log.Warning(ex, "Cannot add a found Ble packet to results");
                     }
                 }))
                 {
@@ -107,7 +107,7 @@ namespace BeaconTelemetryHub.Receiver.Bluetooth.LinuxBle
                         }
                         catch (Exception ex)
                         {
-                            Log.Warning("Cannot stop Ble packet discovering", ex);
+                            Log.Warning(ex, "Cannot stop Ble packet discovering");
                         }
                     } 
                 }
